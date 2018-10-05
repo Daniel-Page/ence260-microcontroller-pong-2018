@@ -11,8 +11,8 @@ int main (void)
 {
     system_init ();
     display_init();
-    uint8_t row = 1;
-    uint8_t column = 1;
+    uint8_t row = 3;
+    uint8_t column = 2;
     pacer_init(PACER_RATE);
 
     while (1) {
