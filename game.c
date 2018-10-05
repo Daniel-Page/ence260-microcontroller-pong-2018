@@ -11,8 +11,11 @@ int main (void)
 {
     system_init ();
     display_init();
+    led_init();
+    led_set(LED1, 0);
     uint8_t row = 3;
     uint8_t column = 2;
+    uint8_t led_state = 0;
     pacer_init(PACER_RATE);
 
     while (1) {
@@ -28,6 +31,13 @@ int main (void)
             column++;
         } else if ((navswitch_push_event_p (NAVSWITCH_WEST)) && column != 0) {
             column--;
+        } else if ((navswitch_push_event_p (NAVSWITCH_PUSH))) {
+            if (led_state == 1) {
+                led_state = 0;
+            } else {
+                led_state = 1;
+            }
+            led_set (LED1, led_state);
         }
         display_pixel_set(column,row,1);
         display_update();
