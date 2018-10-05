@@ -16,13 +16,16 @@ all: game.out
 
 
 # Compile: create object files from C source files.
-game.o: game.c ../../drivers/avr/system.h
+game.o: game.c ../../drivers/avr/system.h ../../drivers/ledmat.h ../../drivers/display.h button.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-buttons.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
+button.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
 	$(CC) -c $(CFLAGS) $< -o $@
+
+display.o: ../../drivers/display.c ../../drivers/display.h ../../drivers/avr/system.h ../../drivers/ledmat.h
+	$(CC) -c $(CFLAGS) $< -o $@	
 	
-display.o: display.c ../../drivers/avr/pio.h ../../drivers/avr/system.h display.h
+ledmat.o: ../../drivers/ledmat.c ../../drivers/ledmat.h ../../drivers/avr/system.h ../../drivers/avr/pio.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
 pio.o: ../../drivers/avr/pio.c ../../drivers/avr/pio.h ../../drivers/avr/system.h
@@ -33,7 +36,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o button.o display.o pio.o system.o
+game.out: game.o button.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
