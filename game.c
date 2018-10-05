@@ -1,4 +1,6 @@
 #include "system.h"
+#include "button.h"
+#include "display.h"
 
 int main (void)
 {

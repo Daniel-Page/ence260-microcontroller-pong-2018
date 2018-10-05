@@ -18,14 +18,22 @@ all: game.out
 # Compile: create object files from C source files.
 game.o: game.c ../../drivers/avr/system.h
 	$(CC) -c $(CFLAGS) $< -o $@
+	
+buttons.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
+	$(CC) -c $(CFLAGS) $< -o $@
+	
+display.o: display.c ../../drivers/avr/pio.h ../../drivers/avr/system.h display.h
+	$(CC) -c $(CFLAGS) $< -o $@
+	
+pio.o: ../../drivers/avr/pio.c ../../drivers/avr/pio.h ../../drivers/avr/system.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
 system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
-
 # Link: create ELF output file from object files.
-game.out: game.o system.o
+game.out: game.o button.o display.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
