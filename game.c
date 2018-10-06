@@ -9,15 +9,23 @@
 #define PACER_RATE 500
 #define SLIDER_RATE 10
 
-
+static uint8_t pixel_x = 0;
+static uint8_t pixel_y = 0;
 static uint8_t row = 3;
 static uint16_t counter_north = 100; 
 static uint16_t counter_south = 100;
-void slider_movement(void) {
-     display_pixel_set(4,row,0);
+
+
+void reset(void) {
+        display_pixel_set(4,row,0);
         display_pixel_set(4,row+1,0);
         display_pixel_set(4,row-1,0);
+        display_pixel_set(pixel_x,pixel_y,0);
         display_update();
+}
+
+
+void slider_movement(void) {
         navswitch_update();
         if ((navswitch_down_p(NAVSWITCH_NORTH)) && row-1 != 0) {
             if (counter_north == (PACER_RATE / SLIDER_RATE)) {
@@ -46,6 +54,18 @@ void slider_movement(void) {
 }
 
 
+void pixel(void) {
+     pixel_x = 0;
+     pixel_y = 3;
+     display_pixel_set(pixel_x,pixel_y,1);
+     display_update();
+}
+
+void pixel_movement(void) {
+    
+}
+
+
 int main (void)
 {
     system_init ();
@@ -54,6 +74,8 @@ int main (void)
 
     while (1) {
         pacer_wait ();
+        reset();
         slider_movement();
+        pixel();
     }
 }
