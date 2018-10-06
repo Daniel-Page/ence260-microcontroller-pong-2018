@@ -5,41 +5,55 @@
 #include "led.h"
 #include "pacer.h"
 
+
 #define PACER_RATE 500
+#define SLIDER_RATE 10
+
+
+static uint8_t row = 3;
+static uint16_t counter_north = 100; 
+static uint16_t counter_south = 100;
+void slider_movement(void) {
+     display_pixel_set(4,row,0);
+        display_pixel_set(4,row+1,0);
+        display_pixel_set(4,row-1,0);
+        display_update();
+        navswitch_update();
+        if ((navswitch_down_p(NAVSWITCH_NORTH)) && row-1 != 0) {
+            if (counter_north == (PACER_RATE / SLIDER_RATE)) {
+                row--;
+                counter_north = 0;
+            } else {
+                counter_north++;
+            }
+        } else if (navswitch_up_p(NAVSWITCH_NORTH)) {
+            counter_north = (PACER_RATE / SLIDER_RATE);
+        }
+        if ((navswitch_down_p(NAVSWITCH_SOUTH)) && row+1 != 6) {
+            if (counter_south == (PACER_RATE / SLIDER_RATE)) {
+                row++;
+                counter_south = 0;
+            } else {
+                counter_south++;
+            }
+        } else if (navswitch_up_p(NAVSWITCH_SOUTH)) {
+            counter_south = (PACER_RATE / SLIDER_RATE);
+        }
+        display_pixel_set(4,row,1);
+        display_pixel_set(4,row+1,1);
+        display_pixel_set(4,row-1,1);
+        display_update();
+}
+
 
 int main (void)
 {
     system_init ();
     display_init();
-    led_init();
-    led_set(LED1, 0);
-    uint8_t row = 3;
-    uint8_t column = 2;
-    uint8_t led_state = 0;
     pacer_init(PACER_RATE);
 
     while (1) {
         pacer_wait ();
-        display_pixel_set(column,row,0);
-        display_update();
-        navswitch_update();
-        if ((navswitch_push_event_p (NAVSWITCH_NORTH)) && row != 0) {
-            row--;
-        } else if ((navswitch_push_event_p (NAVSWITCH_SOUTH)) && row != 6) {
-            row++;
-        } else if ((navswitch_push_event_p (NAVSWITCH_EAST)) && column != 4) {
-            column++;
-        } else if ((navswitch_push_event_p (NAVSWITCH_WEST)) && column != 0) {
-            column--;
-        } else if ((navswitch_push_event_p (NAVSWITCH_PUSH))) {
-            if (led_state == 1) {
-                led_state = 0;
-            } else {
-                led_state = 1;
-            }
-            led_set (LED1, led_state);
-        }
-        display_pixel_set(column,row,1);
-        display_update();
+        slider_movement();
     }
 }
