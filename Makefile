@@ -21,6 +21,12 @@ game.o: game.c ../../drivers/avr/system.h ../../drivers/ledmat.h ../../drivers/d
 	
 button.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
 	$(CC) -c $(CFLAGS) $< -o $@
+
+ir_serial.o: ../../drivers/avr/ir_serial.c ../../drivers/avr/ir_serial.h ../../drivers/avr/system.h ../../drivers/avr/ir.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+ir.o: ../../drivers/avr/ir.c ../../drivers/avr/ir.h ../../drivers/avr/system.h
+	$(CC) -c $(CFLAGS) $< -o $@
 	
 timer.o: ../../drivers/avr/timer.c ../../drivers/avr/system.h ../../drivers/avr/timer.h
 	$(CC) -c $(CFLAGS) $< -o $@

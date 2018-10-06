@@ -4,6 +4,7 @@
 #include "navswitch.h"
 #include "led.h"
 #include "pacer.h"
+#include "ir_serial.h"
 
 
 #define PACER_RATE 500
@@ -30,7 +31,7 @@ void slider_movement(void)
 {
     navswitch_update();
     if (navswitch_down_p(NAVSWITCH_NORTH)) {
-        if (row == -3) {
+        if (row == -2) {
 
             row = 7;
         }
