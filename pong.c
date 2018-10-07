@@ -7,19 +7,20 @@
 #include "ir_serial.h"
 
 
-#define PACER_RATE 500
+#define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
 
 
-static uint8_t pixel_x = 0;
-static uint8_t pixel_y = 0;
+static int8_t pixel_x = -1;
+static int8_t pixel_y = -1;
 static int8_t row = 3;
 static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
-static uint8_t movement_state = 3;
+static uint8_t movement_state = 0;
 static uint8_t connection_state = 0;
+
 
 void reset(void)
 {
@@ -63,7 +64,6 @@ void slider_movement(void)
     display_pixel_set(4,row,1);
     display_pixel_set(4,row+1,1);
     display_pixel_set(4,row-1,1);
-    display_update();
 }
 
 
@@ -173,20 +173,34 @@ void pixel_movement(void)
 }
 
 
-void check_connection(void)
-{
-    uint8_t test = 0;
-    ir_serial_transmit (1);
-    ir_serial_receive (&test);
-    if (test == 1) {
-        led_set (LED1, 1);
-    } else {
-        led_set (LED1, 0);
-    }
+void game_over_check(void) {
+        if ((pixel_x == 4 && pixel_y == 0) ||
+                   (pixel_x == 4 && pixel_y == 1) ||
+                   (pixel_x == 4 && pixel_y == 2) ||
+                   (pixel_x == 4 && pixel_y == 3) ||
+                   (pixel_x == 4 && pixel_y == 4) ||
+                   (pixel_x == 4 && pixel_y == 5) ||
+                   (pixel_x == 4 && pixel_y == 6)) {
+                       // game over instructions
+                   }
+    
 }
 
-void choose_starting_side(void) {
+
+void check_connection(void)
+{
     
+    
+    
+    
+}
+
+
+// Push the navswtich direcly down to start game on your side
+void choose_starting_side(void) {
+    if (navswitch_down_p(NAVSWITCH_PUSH) && movement_state == 0) {
+        movement_state = 3;
+    }
 }
 
 
@@ -198,11 +212,15 @@ int main (void)
     pacer_init(PACER_RATE);
     while (1) {
         pacer_wait ();
-        check_connection();
-        if (connection_state == 1) {
+        
+        choose_starting_side();
+        // connection_state == 1
+        if (1) {
             reset();
             slider_movement();
             pixel_movement();
+            display_update();
         }
+        check_connection();
     }
 }
