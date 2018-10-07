@@ -12,11 +12,11 @@ DEL = rm
 
 
 # Default target.
-all: game.out
+all: pong.out
 
 
 # Compile: create object files from C source files.
-game.o: game.c ../../drivers/avr/system.h ../../drivers/ledmat.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h button.h
+pong.o: pong.c ../../drivers/avr/system.h ../../drivers/ledmat.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h button.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
 button.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
@@ -54,7 +54,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o button.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
+pong.out: pong.o button.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
@@ -67,8 +67,8 @@ clean:
 
 # Target: program project.
 .PHONY: program
-program: game.out
-	$(OBJCOPY) -O ihex game.out game.hex
-	dfu-programmer atmega32u2 erase; dfu-programmer atmega32u2 flash game.hex; dfu-programmer atmega32u2 start
+program: pong.out
+	$(OBJCOPY) -O ihex pong.out pong.hex
+	dfu-programmer atmega32u2 erase; dfu-programmer atmega32u2 flash pong.hex; dfu-programmer atmega32u2 start
 
 
