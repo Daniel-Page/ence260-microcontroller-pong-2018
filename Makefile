@@ -22,10 +22,10 @@ game.o: game.c ../../drivers/avr/system.h ../../drivers/ledmat.h ../../drivers/d
 button.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-ir_serial.o: ../../drivers/avr/ir_serial.c ../../drivers/avr/ir_serial.h ../../drivers/avr/system.h ../../drivers/avr/ir.h
+ir_serial.o: ../../drivers/ir_serial.c ../../drivers/ir_serial.h ../../drivers/avr/system.h ../../drivers/ir.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-ir.o: ../../drivers/avr/ir.c ../../drivers/avr/ir.h ../../drivers/avr/system.h
+ir.o: ../../drivers/ir.c ../../drivers/ir.h ../../drivers/avr/system.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
 timer.o: ../../drivers/avr/timer.c ../../drivers/avr/system.h ../../drivers/avr/timer.h
@@ -54,7 +54,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-game.out: game.o button.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
+game.out: game.o button.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
