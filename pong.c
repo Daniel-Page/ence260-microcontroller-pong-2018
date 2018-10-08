@@ -5,6 +5,7 @@
 #include "led.h"
 #include "pacer.h"
 #include "ir_serial.h"
+#include "ir.h"
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
 
@@ -177,12 +178,28 @@ void pixel_movement(void)
 }
 
 
+static uint8_t i = 0;
+static uint8_t n = 0;
+static uint8_t check[] = {1,0,1};
 void check_connection(void)
 {
+    if (n != 3) {
+        ir_tx_set(check[n],1);
+        n++;
+    } else {
+        n = 0;
+    }
 
-
-
-
+    if (ir_rx_get() == check[i]) {
+        i++;
+    } else {
+        i = 0;
+    }
+    if (i == 2) {
+        connection_state = 1;
+        i = 0;
+        led_set (LED1, 1);
+    }
 }
 
 void choose_starting_side(void)
@@ -213,6 +230,7 @@ void game_over_check(void)
             (pixel_x == 4 && pixel_y == 5) ||
             (pixel_x == 4 && pixel_y == 6)) {
         tinygl_text("GAME OVER");
+        reset();
         game_state = 4;
     }
 }
@@ -227,7 +245,9 @@ int main (void)
 {
     system_init ();
     display_init();
-    ir_serial_init ();
+    ir_init();
+    led_init();
+    led_set (LED1, 0);
     pacer_init(PACER_RATE);
 
     tinygl_init (PACER_RATE);
@@ -242,7 +262,7 @@ int main (void)
             start_playing();
             tinygl_update ();
         } else if (game_state == 2) {
-            // connection_state == 1
+            // if (connection_state == 1) {
             if (1) {
                 reset();
                 choose_starting_side();
@@ -252,11 +272,8 @@ int main (void)
                 display_update();
             }
         } else if (game_state == 4) {
-            reset();
             tinygl_update ();
         }
-
         check_connection();
-
     }
 }
