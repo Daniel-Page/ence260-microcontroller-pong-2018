@@ -174,7 +174,6 @@ void pixel_movement(void)
         counter_pixel++;
     }
     display_pixel_set(pixel_x,pixel_y,1);
-    display_update();
 }
 
 
@@ -204,6 +203,22 @@ void start_playing(void)
 }
 
 
+void game_over_check(void)
+{
+    if ((pixel_x == 4 && pixel_y == 0) ||
+            (pixel_x == 4 && pixel_y == 1) ||
+            (pixel_x == 4 && pixel_y == 2) ||
+            (pixel_x == 4 && pixel_y == 3) ||
+            (pixel_x == 4 && pixel_y == 4) ||
+            (pixel_x == 4 && pixel_y == 5) ||
+            (pixel_x == 4 && pixel_y == 6)) {
+        tinygl_text("GAME OVER");
+        game_state = 4;
+    }
+}
+
+
+
 // 1: Menu
 // 2: Playing
 // 3: Pause
@@ -223,8 +238,6 @@ int main (void)
 
     while (1) {
         pacer_wait ();
-        
-
         if (game_state == 1) {
             start_playing();
             tinygl_update ();
@@ -235,10 +248,15 @@ int main (void)
                 choose_starting_side();
                 slider_movement();
                 pixel_movement();
+                game_over_check();
+                display_update();
             }
+        } else if (game_state == 4) {
+            reset();
+            tinygl_update ();
         }
 
         check_connection();
-        
+
     }
 }
