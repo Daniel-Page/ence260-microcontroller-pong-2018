@@ -180,10 +180,10 @@ void pixel_movement(void)
 
 static uint8_t i = 0;
 static uint8_t n = 0;
-static uint8_t check[] = {1,0,1};
+static uint8_t check[] = {0,1,1,0,1,1,0,1};
 void check_connection(void)
 {
-    if (n != 3) {
+    if (n != 8) {
         ir_tx_set(check[n],1);
         n++;
     } else {
@@ -195,7 +195,7 @@ void check_connection(void)
     } else {
         i = 0;
     }
-    if (i == 2) {
+    if (i == 8) {
         connection_state = 1;
         i = 0;
         led_set (LED1, 1);
