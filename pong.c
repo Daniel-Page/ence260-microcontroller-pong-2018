@@ -5,11 +5,14 @@
 #include "led.h"
 #include "pacer.h"
 #include "ir_serial.h"
+#include "tinygl.h"
+#include "../fonts/font3x5_1.h"
 
 
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
+#define MESSAGE_RATE 30
 
 
 static int8_t pixel_x = -1;
@@ -20,6 +23,7 @@ static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = 0;
 static uint8_t connection_state = 0;
+static uint8_t game_state = 1;
 
 
 void reset(void)
@@ -64,6 +68,7 @@ void slider_movement(void)
     display_pixel_set(4,row,1);
     display_pixel_set(4,row+1,1);
     display_pixel_set(4,row-1,1);
+    display_update();
 }
 
 
@@ -173,54 +178,67 @@ void pixel_movement(void)
 }
 
 
-void game_over_check(void) {
-        if ((pixel_x == 4 && pixel_y == 0) ||
-                   (pixel_x == 4 && pixel_y == 1) ||
-                   (pixel_x == 4 && pixel_y == 2) ||
-                   (pixel_x == 4 && pixel_y == 3) ||
-                   (pixel_x == 4 && pixel_y == 4) ||
-                   (pixel_x == 4 && pixel_y == 5) ||
-                   (pixel_x == 4 && pixel_y == 6)) {
-                       // game over instructions
-                   }
-    
-}
-
-
 void check_connection(void)
 {
-    
-    
-    
-    
+
+
+
+
 }
 
-
-// Push the navswtich direcly down to start game on your side
-void choose_starting_side(void) {
+void choose_starting_side(void)
+{
     if (navswitch_down_p(NAVSWITCH_PUSH) && movement_state == 0) {
         movement_state = 3;
     }
 }
 
 
+void start_playing(void)
+{
+    navswitch_update();
+    if (navswitch_down_p(NAVSWITCH_PUSH) && game_state == 1) {
+        tinygl_clear();
+        game_state = 2;
+    }
+}
+
+
+// 1: Menu
+// 2: Playing
+// 3: Pause
+// 4: Game over
 int main (void)
 {
     system_init ();
     display_init();
     ir_serial_init ();
     pacer_init(PACER_RATE);
+
+    tinygl_init (PACER_RATE);
+    tinygl_font_set (&font3x5_1);
+    tinygl_text_speed_set (MESSAGE_RATE);
+    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
+    tinygl_text("PLAY");
+
     while (1) {
         pacer_wait ();
         
-        choose_starting_side();
-        // connection_state == 1
-        if (1) {
-            reset();
-            slider_movement();
-            pixel_movement();
-            display_update();
+
+        if (game_state == 1) {
+            start_playing();
+            tinygl_update ();
+        } else if (game_state == 2) {
+            // connection_state == 1
+            if (1) {
+                reset();
+                choose_starting_side();
+                slider_movement();
+                pixel_movement();
+            }
         }
+
         check_connection();
+        
     }
 }

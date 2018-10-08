@@ -16,12 +16,15 @@ all: pong.out
 
 
 # Compile: create object files from C source files.
-pong.o: pong.c ../../drivers/avr/system.h ../../drivers/ledmat.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h button.h
+pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-button.o: button.c ../../drivers/avr/pio.h ../../drivers/avr/system.h button.h
+tinygl.o: ../../utils/tinygl.c ../../drivers/avr/system.h ../../drivers/display.h ../../utils/font.h ../../utils/tinygl.h
+	$(CC) -c $(CFLAGS) $< -o $@	
+	
+font.o: ../../utils/font.c ../../drivers/avr/system.h ../../utils/font.h
 	$(CC) -c $(CFLAGS) $< -o $@
-
+	
 ir_serial.o: ../../drivers/ir_serial.c ../../drivers/ir_serial.h ../../drivers/avr/system.h ../../drivers/ir.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -54,7 +57,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-pong.out: pong.o button.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
+pong.out: pong.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
