@@ -7,6 +7,7 @@
 #include "ir_serial.h"
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
+#include "spwm.h"
 
 
 #define PACER_RATE 1000
@@ -23,6 +24,7 @@
 #define SE 4
 #define DIRECTION_OFFSET 10
 #define STARTING_INDICATOR 30
+#define WINNER_INDICATOR 35
 
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
@@ -165,7 +167,12 @@ void pixel_movement(void)
 
 void send_starting_signal(void)
 {
-    ir_serial_transmit(30);
+    ir_serial_transmit(STARTING_INDICATOR);
+}
+
+
+void communicate_winner(void) {
+    ir_serial_transmit(WINNER_INDICATOR);
 }
 
 
@@ -176,6 +183,11 @@ void pixel_receive_check(void)
         if (data == STARTING_INDICATOR) {
             tinygl_clear();
             game_state = PLAYING;
+        } else if (data == WINNER_INDICATOR) {
+            reset();
+            tinygl_text("YOU WIN!");
+            game_state = GAME_OVER;
+            
         } else if (data >= DIRECTION_OFFSET) {
             pixel_x = 0;
             data = data - DIRECTION_OFFSET;
@@ -234,9 +246,24 @@ void game_over_check(void)
             (pixel_x == 4 && pixel_y == 4) ||
             (pixel_x == 4 && pixel_y == 5) ||
             (pixel_x == 4 && pixel_y == 6)) {
-        tinygl_text("GAME OVER");
+        tinygl_text("YOU LOSE");
         reset();
+        communicate_winner();
         game_state = GAME_OVER;
+    }
+}
+
+
+void button_reset_check(void) {
+    button_update();
+    if (button_push_event_p(0)) {
+        reset();
+        movement_state = 0;
+        pixel_x = -1;
+        pixel_y = -1;
+        row = 3;
+        tinygl_text("START");
+        game_state = MENU;
     }
 }
 
@@ -247,7 +274,8 @@ void init_all(void)
     display_init();
     ir_init();
     led_init();
-    led_set (LED1, 0);
+    led_set(LED1, 0);
+    button_init();
     pacer_init(PACER_RATE);
     tinygl_init (PACER_RATE);
     tinygl_font_set (&font3x5_1);
@@ -276,7 +304,8 @@ int main (void)
         }
         pixel_transition_check();
         pixel_receive_check();
+        button_reset_check();
     }
 }
 
-// To do led, readme, sounds, winner/loser check
+// To do led, readme, sounds, winner/loser check, split into modules and comment everything
