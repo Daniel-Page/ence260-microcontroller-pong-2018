@@ -192,6 +192,7 @@ void pixel_receive_check(void)
             tinygl_text("YOU WIN!");
             game_state = GAME_OVER;
             led_set(LED1,LED_ON);
+            row = 3;
         } else if (data >= DIRECTION_OFFSET) {
             pixel_x = 0;
             data = data - DIRECTION_OFFSET;
