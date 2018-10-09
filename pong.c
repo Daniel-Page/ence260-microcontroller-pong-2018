@@ -147,7 +147,7 @@ void pixel_movement(void)
                    (pixel_x == 3 && pixel_y == 0)) {
             if (movement_state == SE) {
                 movement_state = NE;
-            } else if (movement_state == SE) {
+            } else if (movement_state == SW) {
                 movement_state = NW;
             }
         }
