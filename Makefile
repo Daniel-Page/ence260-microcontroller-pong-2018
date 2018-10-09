@@ -1,7 +1,7 @@
 # File:   Makefile
-# Author: M. P. Hayes, UCECE
-# Date:   12 Sep 2010
-# Descr:  Makefile for game
+# Author: Daniel Page and Caleb Smith
+# Date:   8 Oct 2018
+# Descr:  Makefile for pong
 
 # Definitions.
 CC = avr-gcc
@@ -18,6 +18,9 @@ all: pong.out
 # Compile: create object files from C source files.
 pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h
 	$(CC) -c $(CFLAGS) $< -o $@
+	
+task.o: ../../utils/task.c ../../drivers/avr/system.h ../../utils/task.h ../../drivers/avr/timer.h
+	$(CC) -c $(CFLAGS) $< -o $@		
 	
 tinygl.o: ../../utils/tinygl.c ../../drivers/avr/system.h ../../drivers/display.h ../../utils/font.h ../../utils/tinygl.h
 	$(CC) -c $(CFLAGS) $< -o $@	
@@ -57,7 +60,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-pong.out: pong.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
+pong.out: pong.o task.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 

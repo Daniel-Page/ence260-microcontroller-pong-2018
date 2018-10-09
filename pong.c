@@ -5,12 +5,11 @@
 #include "led.h"
 #include "pacer.h"
 #include "ir_serial.h"
-#include "ir.h"
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
 
 
-#define PACER_RATE 1000
+#define PACER_RATE 500
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
 #define MESSAGE_RATE 30
@@ -23,7 +22,6 @@ static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = 0;
-static uint8_t connection_state = 0;
 static uint8_t game_state = 1;
 
 
@@ -73,18 +71,6 @@ void slider_movement(void)
 }
 
 
-void pixel_left(void)
-{
-    pixel_x++;
-}
-
-
-void pixel_right(void)
-{
-    pixel_x--;
-}
-
-
 void pixel_up_left(void)
 {
     pixel_x++;
@@ -122,6 +108,7 @@ void pixel_up_right(void)
 void pixel_movement(void)
 {
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
+        // Slider rebound
         if (((pixel_x == 3 && pixel_y == row) ||
                 (pixel_x == 3 && pixel_y == row+1) ||
                 (pixel_x == 3 && pixel_y == row-1))) {
@@ -132,36 +119,18 @@ void pixel_movement(void)
             } else if (movement_state == 3) {
                 movement_state = 6;
             }
+            // Top rebound NEED MORE!!!
         } else if ((movement_state == 4) && ((pixel_x == 1 && pixel_y == 6) ||
                                              (pixel_x == 2 && pixel_y == 6) ||
                                              (pixel_x == 3 && pixel_y == 6))) {
             movement_state = 6;
+            // Bottom rebound NEED MORE!!!
         } else if ((movement_state == 6) && ((pixel_x == 1 && pixel_y == 0) ||
                                              (pixel_x == 2 && pixel_y == 0) ||
                                              (pixel_x == 3 && pixel_y == 0))) {
             movement_state = 4;
-        } else if ((pixel_x == 0 && pixel_y == 1) ||
-                   (pixel_x == 0 && pixel_y == 2) ||
-                   (pixel_x == 0 && pixel_y == 3) ||
-                   (pixel_x == 0 && pixel_y == 4) ||
-                   (pixel_x == 0 && pixel_y == 5)) {
-            if (movement_state == 6) {
-                movement_state = 5;
-            } else if (movement_state == 4) {
-                movement_state = 3;
-            } else if (movement_state == 1) {
-                movement_state = 2;
-            }
-        } else if ((movement_state == 6) && (pixel_x == 0 && pixel_y == 0)) {
-            movement_state = 3;
-        } else if ((movement_state == 4) && (pixel_x == 0 && pixel_y == 6)) {
-            movement_state = 5;
         }
-        if (movement_state == 1) {
-            pixel_left();
-        } else if (movement_state == 2) {
-            pixel_right();
-        } else if (movement_state == 3) {
+        if (movement_state == 3) {
             pixel_up_left();
         } else if (movement_state == 4) {
             pixel_up_right();
@@ -178,29 +147,35 @@ void pixel_movement(void)
 }
 
 
-static uint8_t i = 0;
-static uint8_t n = 0;
-static uint8_t check[] = {0,1,1,0,1,1,0,1};
-void check_connection(void)
-{
-    if (n != 8) {
-        ir_tx_set(check[n],1);
-        n++;
-    } else {
-        n = 0;
-    }
+void pixel_receive_check(void) {
+    
+    
+}
 
-    if (ir_rx_get() == check[i]) {
-        i++;
-    } else {
-        i = 0;
-    }
-    if (i == 8) {
-        connection_state = 1;
-        i = 0;
-        led_set (LED1, 1);
+
+void pixel_transition_check(void)
+{
+    if ((pixel_x == -1 && pixel_y == 0) ||
+            (pixel_x == -1 && pixel_y == 1) ||
+            (pixel_x == -1 && pixel_y == 2) ||
+            (pixel_x == -1 && pixel_y == 3) ||
+            (pixel_x == -1 && pixel_y == 4) ||
+            (pixel_x == -1 && pixel_y == 5) ||
+            (pixel_x == -1 && pixel_y == 6) ||
+            (pixel_x == -1 && pixel_y == 7)) {
+        // (7-) inverts screen orientation
+        if (movement_state == 4) {
+            // Going up right
+            ir_serial_transmit (7-pixel_y);
+            movement_state = 0;
+        } else if (movement_state == 6) {
+            // (+10) to signify going down right
+            ir_serial_transmit (7-pixel_y+10);
+            movement_state = 0;
+        }
     }
 }
+
 
 void choose_starting_side(void)
 {
@@ -236,10 +211,9 @@ void game_over_check(void)
 }
 
 
-
 // 1: Menu
 // 2: Playing
-// 3: Pause
+// 3: No pixel
 // 4: Game over
 int main (void)
 {
@@ -262,18 +236,17 @@ int main (void)
             start_playing();
             tinygl_update ();
         } else if (game_state == 2) {
-            // if (connection_state == 1) {
-            if (1) {
-                reset();
-                choose_starting_side();
-                slider_movement();
-                pixel_movement();
-                game_over_check();
-                display_update();
-            }
+            reset();
+            choose_starting_side();
+            slider_movement();
+            pixel_movement();
+            game_over_check();
+            display_update();
         } else if (game_state == 4) {
-            tinygl_update ();
+            tinygl_update();
         }
-        check_connection();
+
+        pixel_transition_check();
+        pixel_receive_check();
     }
 }
