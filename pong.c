@@ -308,4 +308,4 @@ int main (void)
     }
 }
 
-// To do led, readme, sounds, winner/loser check, split into modules and comment everything
+// To do: led(winnder?), README, sounds, split into modules and comment everything
