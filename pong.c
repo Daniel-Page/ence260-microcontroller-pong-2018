@@ -112,11 +112,6 @@ void pixel_ne(void)
 }
 
 
-// NW left up: 3
-
-// NE right up: 4
-// SW left down: 5
-// SE right down: 6
 void pixel_movement(void)
 {
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {

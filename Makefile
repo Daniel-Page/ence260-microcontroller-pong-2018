@@ -16,7 +16,7 @@ all: pong.out
 
 
 # Compile: create object files from C source files.
-pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h 
+pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h ../../utils/spwm.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
 spwm.o: ../../utils/spwm.c ../../utils/spwm.h ../../drivers/avr/system.h
