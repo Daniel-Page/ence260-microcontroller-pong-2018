@@ -9,11 +9,20 @@
 #include "../fonts/font3x5_1.h"
 
 
-#define PACER_RATE 500
+#define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
-#define MESSAGE_RATE 30
-
+#define MESSAGE_RATE 20
+#define MENU 1
+#define PLAYING 2
+#define GAME_OVER 3
+#define STATIONARY 0
+#define NW 1
+#define NE 2
+#define SW 3
+#define SE 4
+#define DIRECTION_OFFSET 10
+#define STARTING_INDICATOR 30
 
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
@@ -21,8 +30,8 @@ static int8_t row = 3;
 static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
-static uint8_t movement_state = 0;
-static uint8_t game_state = 1;
+static uint8_t movement_state = STATIONARY;
+static uint8_t game_state = MENU;
 
 
 void reset(void)
@@ -71,40 +80,39 @@ void slider_movement(void)
 }
 
 
-void pixel_up_left(void)
+void pixel_nw(void)
 {
     pixel_x++;
     pixel_y++;
 }
 
 
-void pixel_down_right(void)
+void pixel_se(void)
 {
     pixel_x--;
     pixel_y--;
 }
 
 
-void pixel_down_left(void)
+void pixel_sw(void)
 {
     pixel_x++;
     pixel_y--;
 }
 
 
-void pixel_up_right(void)
+void pixel_ne(void)
 {
     pixel_x--;
     pixel_y++;
 }
 
 
-// left: 1
-// right: 2
-// left up: 3
-// right up: 4
-// left down: 5
-// right down: 6
+// NW left up: 3
+
+// NE right up: 4
+// SW left down: 5
+// SE right down: 6
 void pixel_movement(void)
 {
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
@@ -112,38 +120,40 @@ void pixel_movement(void)
         if (((pixel_x == 3 && pixel_y == row) ||
                 (pixel_x == 3 && pixel_y == row+1) ||
                 (pixel_x == 3 && pixel_y == row-1))) {
-            if (movement_state == 3) {
-                movement_state = 4;
-            } else if (movement_state == 5) {
-                movement_state = 6;
+            if (movement_state == NW) {
+                movement_state = NE;
+            } else if (movement_state == SW) {
+                movement_state = SE;
             }
             // Top rebound
-        } else if ((pixel_x == 1 && pixel_y == 6) ||
+        } else if ((pixel_x == 0 && pixel_y == 6) ||
+                   (pixel_x == 1 && pixel_y == 6) ||
                    (pixel_x == 2 && pixel_y == 6) ||
                    (pixel_x == 3 && pixel_y == 6)) {
-            if (movement_state == 4) {
-                movement_state = 6;
-            } else if (movement_state == 3) {
-                movement_state = 5;
+            if (movement_state == NE) {
+                movement_state = SE;
+            } else if (movement_state == NW) {
+                movement_state = SW;
             }
             // Bottom rebound
-        } else if ((pixel_x == 1 && pixel_y == 0) ||
-                        (pixel_x == 2 && pixel_y == 0) ||
-                        (pixel_x == 3 && pixel_y == 0)) {
-            if (movement_state == 6) {
-                movement_state = 4;
-            } else if (movement_state == 6) {
-                movement_state = 3;
+        } else if ((pixel_x == 0 && pixel_y == 0) ||
+                   (pixel_x == 1 && pixel_y == 0) ||
+                   (pixel_x == 2 && pixel_y == 0) ||
+                   (pixel_x == 3 && pixel_y == 0)) {
+            if (movement_state == SE) {
+                movement_state = NE;
+            } else if (movement_state == SE) {
+                movement_state = NW;
             }
         }
-        if (movement_state == 3) {
-            pixel_up_left();
-        } else if (movement_state == 4) {
-            pixel_up_right();
-        } else if (movement_state == 5) {
-            pixel_down_left();
-        } else if (movement_state == 6) {
-            pixel_down_right();
+        if (movement_state == NW) {
+            pixel_nw();
+        } else if (movement_state == NE) {
+            pixel_ne();
+        } else if (movement_state == SW) {
+            pixel_sw();
+        } else if (movement_state == SE) {
+            pixel_se();
         }
         counter_pixel = 0;
     } else {
@@ -153,20 +163,28 @@ void pixel_movement(void)
 }
 
 
+void send_starting_signal(void)
+{
+    ir_serial_transmit(30);
+}
+
+
 void pixel_receive_check(void)
 {
     uint8_t data = 0;
-    uint8_t ret = 0;
-    ret = ir_serial_receive(&data);
-    if (ret == IR_SERIAL_OK) {
-        pixel_x = 0;
-        if (data >= 10) {
-            data = data - 10;
+    if (ir_serial_receive(&data) == IR_SERIAL_OK) {
+        if (data == STARTING_INDICATOR) {
+            tinygl_clear();
+            game_state = PLAYING;
+        } else if (data >= DIRECTION_OFFSET) {
+            pixel_x = 0;
+            data = data - DIRECTION_OFFSET;
             pixel_y = data;
-            movement_state = 3;
+            movement_state = NW;
         } else {
+            pixel_x = 0;
             pixel_y = data;
-            movement_state = 5;
+            movement_state = SW;
         }
     }
 }
@@ -174,32 +192,22 @@ void pixel_receive_check(void)
 
 void pixel_transition_check(void)
 {
-    if ((pixel_x == -1 && pixel_y == -1) ||
-            (pixel_x == -1 && pixel_y == 0) ||
+    if ((pixel_x == -1 && pixel_y == 0) ||
             (pixel_x == -1 && pixel_y == 1) ||
             (pixel_x == -1 && pixel_y == 2) ||
             (pixel_x == -1 && pixel_y == 3) ||
             (pixel_x == -1 && pixel_y == 4) ||
             (pixel_x == -1 && pixel_y == 5) ||
-            (pixel_x == -1 && pixel_y == 6) ||
-            (pixel_x == -1 && pixel_y == 7)) {
+            (pixel_x == -1 && pixel_y == 6)) {
         // (7-) inverts screen orientation
-        if (movement_state == 4) {
+        if (movement_state == NE) {
             // Going up right
-            if (pixel_y == 7) {
-                ir_serial_transmit (6-5+10);
-            } else {
-                ir_serial_transmit (6-pixel_y);
-            }
-            movement_state = 0;
-        } else if (movement_state == 6) {
+            ir_serial_transmit (6-pixel_y);
+            movement_state = STATIONARY;
+        } else if (movement_state == SE) {
             // (+10) to signify going down right
-            if (pixel_y == -1) {
-                ir_serial_transmit (6-1);
-            } else {
-                ir_serial_transmit (6-pixel_y+10);
-                movement_state = 0;
-            }
+            ir_serial_transmit (6-pixel_y+DIRECTION_OFFSET);
+            movement_state = STATIONARY;
         }
     }
 }
@@ -209,9 +217,10 @@ void start_playing(void)
 {
     navswitch_update();
     if (navswitch_down_p(NAVSWITCH_PUSH) && game_state == 1) {
-        movement_state = 3;
         tinygl_clear();
-        game_state = 2;
+        send_starting_signal();
+        game_state = PLAYING;
+        movement_state = NW;
     }
 }
 
@@ -227,16 +236,12 @@ void game_over_check(void)
             (pixel_x == 4 && pixel_y == 6)) {
         tinygl_text("GAME OVER");
         reset();
-        game_state = 4;
+        game_state = GAME_OVER;
     }
 }
 
 
-// 1: Menu
-// 2: Playing
-// 3: No pixel
-// 4: Game over
-int main (void)
+void init_all(void)
 {
     system_init ();
     display_init();
@@ -248,22 +253,30 @@ int main (void)
     tinygl_font_set (&font3x5_1);
     tinygl_text_speed_set (MESSAGE_RATE);
     tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
-    tinygl_text("PLAY");
+    tinygl_text("START");
+}
+
+
+int main (void)
+{
+    init_all();
     while (1) {
         pacer_wait ();
-        if (game_state == 1) {
+        if (game_state == MENU) {
             start_playing();
             tinygl_update ();
-        } else if (game_state == 2) {
+        } else if (game_state == PLAYING) {
             reset();
             slider_movement();
             pixel_movement();
             game_over_check();
             display_update();
-        } else if (game_state == 4) {
+        } else if (game_state == GAME_OVER) {
             tinygl_update();
         }
         pixel_transition_check();
         pixel_receive_check();
     }
 }
+
+// To do led, readme, sounds, winner/loser check
