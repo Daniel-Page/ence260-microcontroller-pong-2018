@@ -12,7 +12,7 @@
 
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
-#define PIXEL_RATE 5
+#define PIXEL_RATE 10
 #define MESSAGE_RATE 20
 #define MENU 1
 #define PLAYING 2
