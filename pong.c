@@ -185,6 +185,7 @@ void pixel_receive_check(void)
     if (ir_serial_receive(&data) == IR_SERIAL_OK) {
         if (data == STARTING_INDICATOR) {
             tinygl_clear();
+            led_set(LED1,LED_OFF);
             game_state = PLAYING;
         } else if (data == WINNER_INDICATOR) {
             reset();
