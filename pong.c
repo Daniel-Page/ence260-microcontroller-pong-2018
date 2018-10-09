@@ -25,6 +25,8 @@
 #define DIRECTION_OFFSET 10
 #define STARTING_INDICATOR 30
 #define WINNER_INDICATOR 35
+#define LED_ON 1
+#define LED_OFF 0
 
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
@@ -187,7 +189,7 @@ void pixel_receive_check(void)
             reset();
             tinygl_text("YOU WIN!");
             game_state = GAME_OVER;
-            
+            led_set(LED1,LED_ON);
         } else if (data >= DIRECTION_OFFSET) {
             pixel_x = 0;
             data = data - DIRECTION_OFFSET;
@@ -258,6 +260,7 @@ void button_reset_check(void) {
     button_update();
     if (button_push_event_p(0)) {
         reset();
+        led_set(LED1,LED_OFF);
         movement_state = 0;
         pixel_x = -1;
         pixel_y = -1;
@@ -274,7 +277,7 @@ void init_all(void)
     display_init();
     ir_init();
     led_init();
-    led_set(LED1, 0);
+    led_set(LED1,LED_OFF);
     button_init();
     pacer_init(PACER_RATE);
     tinygl_init (PACER_RATE);
@@ -308,4 +311,4 @@ int main (void)
     }
 }
 
-// To do: led(winnder?), README, sounds, split into modules and comment everything
+// To do: README, sounds, split into modules and comment everything
