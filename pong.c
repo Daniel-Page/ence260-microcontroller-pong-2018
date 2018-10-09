@@ -116,19 +116,25 @@ void pixel_movement(void)
                 movement_state = 4;
             } else if (movement_state == 5) {
                 movement_state = 6;
-            } else if (movement_state == 3) {
-                movement_state = 6;
             }
-            // Top rebound NEED MORE!!!
-        } else if ((movement_state == 4) && ((pixel_x == 1 && pixel_y == 6) ||
-                                             (pixel_x == 2 && pixel_y == 6) ||
-                                             (pixel_x == 3 && pixel_y == 6))) {
-            movement_state = 6;
-            // Bottom rebound NEED MORE!!!
-        } else if ((movement_state == 6) && ((pixel_x == 1 && pixel_y == 0) ||
-                                             (pixel_x == 2 && pixel_y == 0) ||
-                                             (pixel_x == 3 && pixel_y == 0))) {
-            movement_state = 4;
+            // Top rebound
+        } else if ((pixel_x == 1 && pixel_y == 6) ||
+                   (pixel_x == 2 && pixel_y == 6) ||
+                   (pixel_x == 3 && pixel_y == 6)) {
+            if (movement_state == 4) {
+                movement_state = 6;
+            } else if (movement_state == 3) {
+                movement_state = 5;
+            }
+            // Bottom rebound
+        } else if ((pixel_x == 1 && pixel_y == 0) ||
+                        (pixel_x == 2 && pixel_y == 0) ||
+                        (pixel_x == 3 && pixel_y == 0)) {
+            if (movement_state == 6) {
+                movement_state = 4;
+            } else if (movement_state == 6) {
+                movement_state = 3;
+            }
         }
         if (movement_state == 3) {
             pixel_up_left();
@@ -149,8 +155,20 @@ void pixel_movement(void)
 
 void pixel_receive_check(void)
 {
-
-
+    uint8_t data = 0;
+    uint8_t ret = 0;
+    ret = ir_serial_receive(&data);
+    if (ret == IR_SERIAL_OK) {
+        pixel_x = 0;
+        if (data >= 10) {
+            data = data - 10;
+            pixel_y = data;
+            movement_state = 3;
+        } else {
+            pixel_y = data;
+            movement_state = 5;
+        }
+    }
 }
 
 
@@ -169,28 +187,20 @@ void pixel_transition_check(void)
         if (movement_state == 4) {
             // Going up right
             if (pixel_y == 7) {
-                ir_serial_transmit (7-5);
+                ir_serial_transmit (6-5+10);
             } else {
-                ir_serial_transmit (7-pixel_y);
+                ir_serial_transmit (6-pixel_y);
             }
             movement_state = 0;
         } else if (movement_state == 6) {
             // (+10) to signify going down right
             if (pixel_y == -1) {
-                ir_serial_transmit (7-1);
+                ir_serial_transmit (6-1);
             } else {
-                ir_serial_transmit (7-pixel_y+10);
+                ir_serial_transmit (6-pixel_y+10);
                 movement_state = 0;
             }
         }
-    }
-}
-
-
-void choose_starting_side(void)
-{
-    if (navswitch_down_p(NAVSWITCH_PUSH) && movement_state == 0) {
-        movement_state = 3;
     }
 }
 
@@ -199,6 +209,7 @@ void start_playing(void)
 {
     navswitch_update();
     if (navswitch_down_p(NAVSWITCH_PUSH) && game_state == 1) {
+        movement_state = 3;
         tinygl_clear();
         game_state = 2;
     }
@@ -233,13 +244,11 @@ int main (void)
     led_init();
     led_set (LED1, 0);
     pacer_init(PACER_RATE);
-
     tinygl_init (PACER_RATE);
     tinygl_font_set (&font3x5_1);
     tinygl_text_speed_set (MESSAGE_RATE);
     tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
     tinygl_text("PLAY");
-
     while (1) {
         pacer_wait ();
         if (game_state == 1) {
@@ -247,7 +256,6 @@ int main (void)
             tinygl_update ();
         } else if (game_state == 2) {
             reset();
-            choose_starting_side();
             slider_movement();
             pixel_movement();
             game_over_check();
