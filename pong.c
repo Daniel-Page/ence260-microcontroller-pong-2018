@@ -147,15 +147,17 @@ void pixel_movement(void)
 }
 
 
-void pixel_receive_check(void) {
-    
-    
+void pixel_receive_check(void)
+{
+
+
 }
 
 
 void pixel_transition_check(void)
 {
-    if ((pixel_x == -1 && pixel_y == 0) ||
+    if ((pixel_x == -1 && pixel_y == -1) ||
+            (pixel_x == -1 && pixel_y == 0) ||
             (pixel_x == -1 && pixel_y == 1) ||
             (pixel_x == -1 && pixel_y == 2) ||
             (pixel_x == -1 && pixel_y == 3) ||
@@ -166,12 +168,20 @@ void pixel_transition_check(void)
         // (7-) inverts screen orientation
         if (movement_state == 4) {
             // Going up right
-            ir_serial_transmit (7-pixel_y);
+            if (pixel_y == 7) {
+                ir_serial_transmit (7-5);
+            } else {
+                ir_serial_transmit (7-pixel_y);
+            }
             movement_state = 0;
         } else if (movement_state == 6) {
             // (+10) to signify going down right
-            ir_serial_transmit (7-pixel_y+10);
-            movement_state = 0;
+            if (pixel_y == -1) {
+                ir_serial_transmit (7-1);
+            } else {
+                ir_serial_transmit (7-pixel_y+10);
+                movement_state = 0;
+            }
         }
     }
 }
@@ -245,7 +255,6 @@ int main (void)
         } else if (game_state == 4) {
             tinygl_update();
         }
-
         pixel_transition_check();
         pixel_receive_check();
     }
