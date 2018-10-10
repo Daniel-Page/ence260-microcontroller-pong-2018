@@ -9,25 +9,30 @@
 #include "../fonts/font3x5_1.h"
 #include "spwm.h"
 
-
+// Rates
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
 #define MESSAGE_RATE 20
+// Game States
 #define MENU 1
 #define PLAYING 2
 #define GAME_OVER 3
 #define STATIONARY 0
+// Directions
 #define NW 1
 #define NE 2
 #define SW 3
 #define SE 4
 #define DIRECTION_OFFSET 10
+// Indicators
 #define STARTING_INDICATOR 30
 #define WINNER_INDICATOR 35
+// Output States
 #define LED_ON 1
 #define LED_OFF 0
 
+// Game variables
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
 static int8_t row = 3;
@@ -37,17 +42,7 @@ static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
 
-
-void reset(void)
-{
-    display_pixel_set(4,row,0);
-    display_pixel_set(4,row+1,0);
-    display_pixel_set(4,row-1,0);
-    display_pixel_set(pixel_x,pixel_y,0);
-    display_update();
-}
-
-
+// Controls slider movement and sets display
 void slider_movement(void)
 {
     navswitch_update();
@@ -83,28 +78,28 @@ void slider_movement(void)
     display_update();
 }
 
-
+// North-West movement
 void pixel_nw(void)
 {
     pixel_x++;
     pixel_y++;
 }
 
-
+// South-East movement
 void pixel_se(void)
 {
     pixel_x--;
     pixel_y--;
 }
 
-
+// South-West movement
 void pixel_sw(void)
 {
     pixel_x++;
     pixel_y--;
 }
 
-
+// North-East movement
 void pixel_ne(void)
 {
     pixel_x--;
@@ -112,6 +107,7 @@ void pixel_ne(void)
 }
 
 
+// Contols the pixel movement in free space and at the boundaries of the game
 void pixel_movement(void)
 {
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
@@ -151,6 +147,7 @@ void pixel_movement(void)
                 movement_state = NW;
             }
         }
+        // Moves pixel by changing coordinates
         if (movement_state == NW) {
             pixel_nw();
         } else if (movement_state == NE) {
@@ -168,18 +165,21 @@ void pixel_movement(void)
 }
 
 
+// Sends starting singal when both devices are on "START" screen
 void send_starting_signal(void)
 {
     ir_serial_transmit(STARTING_INDICATOR);
 }
 
 
+// The loser sends a signal to the other device that they are the winner
 void communicate_winner(void) {
     ir_serial_transmit(WINNER_INDICATOR);
 }
 
 
-void pixel_receive_check(void)
+// Checks for IR signals and carries out actions
+void receive_check(void)
 {
     uint8_t data = 0;
     if (ir_serial_receive(&data) == IR_SERIAL_OK) {
@@ -207,6 +207,7 @@ void pixel_receive_check(void)
 }
 
 
+// Sends signal to other device after processing
 void pixel_transition_check(void)
 {
     if ((pixel_x == -1 && pixel_y == 0) ||
@@ -230,6 +231,7 @@ void pixel_transition_check(void)
 }
 
 
+// Initiates game on both devices
 void start_playing(void)
 {
     navswitch_update();
@@ -242,6 +244,7 @@ void start_playing(void)
 }
 
 
+// Checks to see if the pixel has entered the restricted zone
 void game_over_check(void)
 {
     if ((pixel_x == 4 && pixel_y == 0) ||
@@ -259,6 +262,7 @@ void game_over_check(void)
 }
 
 
+// Resets the game
 void button_reset_check(void) {
     button_update();
     if (button_push_event_p(0)) {
@@ -274,6 +278,18 @@ void button_reset_check(void) {
 }
 
 
+// Resets slider and pixel
+void reset(void)
+{
+    display_pixel_set(4,row,0);
+    display_pixel_set(4,row+1,0);
+    display_pixel_set(4,row-1,0);
+    display_pixel_set(pixel_x,pixel_y,0);
+    display_update();
+}
+
+
+// Initialises all of the I/O devices and text
 void init_all(void)
 {
     system_init ();
@@ -291,6 +307,7 @@ void init_all(void)
 }
 
 
+// Controls the game with a series of states
 int main (void)
 {
     init_all();
@@ -309,7 +326,7 @@ int main (void)
             tinygl_update();
         }
         pixel_transition_check();
-        pixel_receive_check();
+        receive_check();
         button_reset_check();
     }
 }
