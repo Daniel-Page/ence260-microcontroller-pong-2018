@@ -47,6 +47,18 @@ static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
 
+
+// Resets slider and pixel
+void reset(void)
+{
+    display_pixel_set(4,row,0);
+    display_pixel_set(4,row+1,0);
+    display_pixel_set(4,row-1,0);
+    display_pixel_set(pixel_x,pixel_y,0);
+    display_update();
+}
+
+
 // Controls slider movement and sets display
 void slider_movement(void)
 {
@@ -282,17 +294,6 @@ void button_reset_check(void) {
         tinygl_text("START");
         game_state = MENU;
     }
-}
-
-
-// Resets slider and pixel
-void reset(void)
-{
-    display_pixel_set(4,row,0);
-    display_pixel_set(4,row+1,0);
-    display_pixel_set(4,row-1,0);
-    display_pixel_set(pixel_x,pixel_y,0);
-    display_update();
 }
 
 
