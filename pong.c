@@ -19,7 +19,7 @@
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
 #define MESSAGE_RATE 20
-// Game States
+// Game states
 #define MENU 1
 #define PLAYING 2
 #define GAME_OVER 3
@@ -33,7 +33,7 @@
 // Indicators
 #define STARTING_INDICATOR 30
 #define WINNER_INDICATOR 35
-// Output States
+// Output states
 #define LED_ON 1
 #define LED_OFF 0
 
@@ -339,4 +339,4 @@ int main (void)
     }
 }
 
-// To do: README, sounds, split into modules and comment everything
+// To do: README, sounds and split into modules
