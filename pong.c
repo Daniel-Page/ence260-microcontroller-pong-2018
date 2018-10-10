@@ -117,7 +117,9 @@ void pixel_movement(void)
 {
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
         // Slider rebound
-        if ((pixel_x == 3) && ((pixel_y == 6) || (pixel_y == 0)) && ((pixel_y == row) || (pixel_y == row+1) || (pixel_y == row-1))) {
+        if ((pixel_x == 3) && ((pixel_y == 6) ||
+            (pixel_y == 0)) && ((pixel_y == row) ||
+            (pixel_y == row+1) || (pixel_y == row-1))) {
              if (movement_state == NW) {
                 movement_state = SE;
             } else if (movement_state == SW){
