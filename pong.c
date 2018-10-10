@@ -1,3 +1,8 @@
+// File: Pong
+// Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
+// Date: 10 Oct 2018
+// Descr: The main file for a game of pong
+
 #include "system.h"
 #include "button.h"
 #include "display.h"
