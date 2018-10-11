@@ -3,6 +3,7 @@
 // Date: 10 Oct 2018
 // Descr: The main file for a game of pong
 
+
 #include "system.h"
 #include "button.h"
 #include "display.h"
@@ -17,11 +18,12 @@
 #include "pio.h"
 
 
+// Tweeter initialisation
+#define PIEZO_PIO PIO_DEFINE (PORT_D, 6)
+#define TWEETER_TASK_RATE 20000
+#define MIDI_NOTE_C4 60
 // Rates
-#define TWEETER_RATE 20000
-#define TUNE_RATE 200
-#define BPM_RATE 200
-
+#define TWEETER_RESET_RATE 10
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
@@ -44,6 +46,11 @@
 #define LED_ON 1
 #define LED_OFF 0
 
+
+// Tweeter initialisation
+static tweeter_scale_t scale_table[] = TWEETER_SCALE_TABLE(TWEETER_TASK_RATE);
+static tweeter_t tweeter;
+static tweeter_obj_t tweeter_info;
 // Game variables
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
@@ -53,6 +60,40 @@ static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
+static uint8_t collision_reset_counter = 0;
+
+
+void tweeter_task_init(void)
+{
+    tweeter = tweeter_init(&tweeter_info, TWEETER_TASK_RATE, scale_table);
+    pio_config_set(PIEZO_PIO, PIO_OUTPUT_LOW);
+}
+
+void tweeter_task(void)
+{
+    pio_output_set(PIEZO_PIO, tweeter_update (tweeter));
+}
+
+
+// Makes a sound when there is a collision
+void tweeter_collision(void)
+{
+    tweeter_note_play(tweeter,75,127);
+    tweeter_task();
+}
+
+
+// Turns off the collision beep
+void tweeter_collision_reset(void)
+{
+    if (collision_reset_counter == (PACER_RATE / TWEETER_RESET_RATE)) {
+        tweeter_note_play(tweeter,0,127);
+        tweeter_task();
+        collision_reset_counter = 0;
+    } else {
+        collision_reset_counter++;
+    }
+}
 
 
 // Resets slider and pixel
@@ -137,20 +178,24 @@ void pixel_movement(void)
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
         // Slider rebound
         if ((pixel_x == 3) && ((pixel_y == 6) ||
-            (pixel_y == 0)) && ((pixel_y == row) ||
-            (pixel_y == row+1) || (pixel_y == row-1))) {
-             if (movement_state == NW) {
+                               (pixel_y == 0)) && ((pixel_y == row) ||
+                                       (pixel_y == row+1) || (pixel_y == row-1))) {
+            if (movement_state == NW) {
                 movement_state = DSE;
-            } else if (movement_state == SW){
+                tweeter_collision();
+            } else if (movement_state == SW) {
                 movement_state = NE;
+                tweeter_collision();
             }
         } else if (((pixel_x == 3 && pixel_y == row) ||
-                (pixel_x == 3 && pixel_y == row+1) ||
-                (pixel_x == 3 && pixel_y == row-1))) {
+                    (pixel_x == 3 && pixel_y == row+1) ||
+                    (pixel_x == 3 && pixel_y == row-1))) {
             if (movement_state == NW) {
                 movement_state = NE;
+                tweeter_collision();
             } else if (movement_state == SW) {
                 movement_state = DSE;
+                tweeter_collision();
             }
             // Top rebound
         } else if ((pixel_x == 0 && pixel_y == 6) ||
@@ -159,8 +204,10 @@ void pixel_movement(void)
                    (pixel_x == 3 && pixel_y == 6)) {
             if (movement_state == NE) {
                 movement_state = DSE;
+                tweeter_collision();
             } else if (movement_state == NW) {
                 movement_state = SW;
+                tweeter_collision();
             }
             // Bottom rebound
         } else if ((pixel_x == 0 && pixel_y == 0) ||
@@ -169,8 +216,10 @@ void pixel_movement(void)
                    (pixel_x == 3 && pixel_y == 0)) {
             if (movement_state == DSE) {
                 movement_state = NE;
+                tweeter_collision();
             } else if (movement_state == SW) {
                 movement_state = NW;
+                tweeter_collision();
             }
         }
         // Moves pixel by changing coordinates
@@ -199,7 +248,8 @@ void send_starting_signal(void)
 
 
 // The loser sends a signal to the other device that they are the winner
-void communicate_winner(void) {
+void communicate_winner(void)
+{
     ir_serial_transmit(WINNER_INDICATOR);
 }
 
@@ -289,7 +339,8 @@ void game_over_check(void)
 
 
 // Resets the game
-void button_reset_check(void) {
+void button_reset_check(void)
+{
     button_update();
     if (button_push_event_p(0)) {
         reset();
@@ -319,7 +370,7 @@ void init_all(void)
     tinygl_text_speed_set (MESSAGE_RATE);
     tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
     tinygl_text("START");
-    
+    tweeter_task_init();
 
 }
 
@@ -345,6 +396,7 @@ int main (void)
         pixel_transition_check();
         receive_check();
         button_reset_check();
+        tweeter_collision_reset();
     }
 }
 
