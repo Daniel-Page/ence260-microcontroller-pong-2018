@@ -1,0 +1,13 @@
+START GAME
+ - once the code has been uploaded to each players UCKF. Each players screens will display "START GAME".
+ - The game is started by one player clicking the NAV switch.
+ - The ball begins on the screen of the player who initialised the game.
+ - Use the north and south(left and right) operations of the NAV switch to
+   operate the slider. Don't let the ball pass your slider.
+END GAME
+ - Once the ball passes a players slider, this player loses and the game
+   is ended. Your screen will then display either "YOU WIN" or "YOU LOSE"
+   based on the outcome of the game.
+RESET GAME
+ - The game is reset by both players clicking the reset button.
+ - From here the NAV switch can be pressed by a player to begin a new game.
