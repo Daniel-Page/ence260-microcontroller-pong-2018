@@ -1,11 +1,11 @@
 # File:   Makefile
-# Author: Daniel Page and Caleb Smith
+# Authors: Daniel Page and Caleb Smith
 # Date:   8 Oct 2018
 # Descr:  Makefile for pong
 
 # Definitions.
 CC = avr-gcc
-CFLAGS = -mmcu=atmega32u2 -Os -Wall -Wstrict-prototypes -Wextra -g -I. -I../../utils -I../../fonts -I../../drivers -I../../drivers/avr
+CFLAGS = -mmcu=atmega32u2 -Os -Wall -Wstrict-prototypes -Wextra -g -I. -I../../utils -I../../fonts -I../../drivers -I../../drivers/avr -I../../extra
 OBJCOPY = avr-objcopy
 SIZE = avr-size
 DEL = rm
@@ -19,8 +19,11 @@ all: pong.out
 pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h ../../utils/spwm.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-spwm.o: ../../utils/spwm.c ../../utils/spwm.h ../../drivers/avr/system.h
-	$(CC) -c $(CFLAGS) $< -o $@	
+ticker.o: ../../extra/ticker.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+tweeter.o: ../../extra/tweeter.c ../../drivers/avr/system.h ../../extra/ticker.h ../../extra/tweeter.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
 button.o: ../../drivers/button.c ../../drivers/button.h ../../drivers/avr/system.h ../../drivers/avr/pio.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -66,7 +69,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-pong.out: pong.o spwm.o button.o task.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
+pong.out: pong.o tweeter.o ticker.o button.o task.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 

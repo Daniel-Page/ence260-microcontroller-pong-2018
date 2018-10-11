@@ -12,14 +12,16 @@
 #include "ir_serial.h"
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
-#include "spwm.h"
+#include "tweeter.h"
+#include "pio.h"
+
 
 // Rates
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
 #define MESSAGE_RATE 20
-// Game states
+// Game States
 #define MENU 1
 #define PLAYING 2
 #define GAME_OVER 3
@@ -33,7 +35,7 @@
 // Indicators
 #define STARTING_INDICATOR 30
 #define WINNER_INDICATOR 35
-// Output states
+// Output States
 #define LED_ON 1
 #define LED_OFF 0
 
@@ -312,6 +314,8 @@ void init_all(void)
     tinygl_text_speed_set (MESSAGE_RATE);
     tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
     tinygl_text("START");
+    
+
 }
 
 
@@ -339,4 +343,4 @@ int main (void)
     }
 }
 
-// To do: README, sounds and split into modules
+// To do: README, sounds, split into modules and comment everything
