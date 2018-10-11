@@ -30,7 +30,7 @@
 #define NW 1
 #define NE 2
 #define SW 3
-#define SE 4
+#define DSE 4
 #define DIRECTION_OFFSET 10
 // Indicators
 #define STARTING_INDICATOR 30
@@ -135,7 +135,7 @@ void pixel_movement(void)
             (pixel_y == 0)) && ((pixel_y == row) ||
             (pixel_y == row+1) || (pixel_y == row-1))) {
              if (movement_state == NW) {
-                movement_state = SE;
+                movement_state = DSE;
             } else if (movement_state == SW){
                 movement_state = NE;
             }
@@ -145,7 +145,7 @@ void pixel_movement(void)
             if (movement_state == NW) {
                 movement_state = NE;
             } else if (movement_state == SW) {
-                movement_state = SE;
+                movement_state = DSE;
             }
             // Top rebound
         } else if ((pixel_x == 0 && pixel_y == 6) ||
@@ -153,7 +153,7 @@ void pixel_movement(void)
                    (pixel_x == 2 && pixel_y == 6) ||
                    (pixel_x == 3 && pixel_y == 6)) {
             if (movement_state == NE) {
-                movement_state = SE;
+                movement_state = DSE;
             } else if (movement_state == NW) {
                 movement_state = SW;
             }
@@ -162,7 +162,7 @@ void pixel_movement(void)
                    (pixel_x == 1 && pixel_y == 0) ||
                    (pixel_x == 2 && pixel_y == 0) ||
                    (pixel_x == 3 && pixel_y == 0)) {
-            if (movement_state == SE) {
+            if (movement_state == DSE) {
                 movement_state = NE;
             } else if (movement_state == SW) {
                 movement_state = NW;
@@ -175,7 +175,7 @@ void pixel_movement(void)
             pixel_ne();
         } else if (movement_state == SW) {
             pixel_sw();
-        } else if (movement_state == SE) {
+        } else if (movement_state == DSE) {
             pixel_se();
         }
         counter_pixel = 0;
@@ -243,7 +243,7 @@ void pixel_transition_check(void)
             // Going up right
             ir_serial_transmit (6-pixel_y);
             movement_state = STATIONARY;
-        } else if (movement_state == SE) {
+        } else if (movement_state == DSE) {
             // (+10) to signify going down right
             ir_serial_transmit (6-pixel_y+DIRECTION_OFFSET);
             movement_state = STATIONARY;
