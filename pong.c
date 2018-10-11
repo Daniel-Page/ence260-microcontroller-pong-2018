@@ -13,10 +13,15 @@
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
 #include "tweeter.h"
+#include "mmelody.h"
 #include "pio.h"
 
 
 // Rates
+#define TWEETER_RATE 20000
+#define TUNE_RATE 200
+#define BPM_RATE 200
+
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
