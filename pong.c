@@ -16,14 +16,10 @@
 #include "tweeter.h"
 #include "mmelody.h"
 #include "pio.h"
+#include "sound.h"
 
 
-// Tweeter initialisation
-#define PIEZO_PIO PIO_DEFINE (PORT_D, 6)
-#define TWEETER_TASK_RATE 20000
-#define MIDI_NOTE_C4 60
 // Rates
-#define TWEETER_RESET_RATE 10
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
 #define PIXEL_RATE 5
@@ -47,10 +43,6 @@
 #define LED_OFF 0
 
 
-// Tweeter initialisation
-static tweeter_scale_t scale_table[] = TWEETER_SCALE_TABLE(TWEETER_TASK_RATE);
-static tweeter_t tweeter;
-static tweeter_obj_t tweeter_info;
 // Game variables
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
@@ -60,43 +52,6 @@ static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
-static uint8_t collision_reset_counter = 0;
-
-
-// Initialises the tweeter
-void tweeter_task_init(void)
-{
-    tweeter = tweeter_init(&tweeter_info,TWEETER_TASK_RATE,scale_table);
-    pio_config_set(PIEZO_PIO, PIO_OUTPUT_LOW);
-}
-
-
-// Updates the tweeter sound
-void tweeter_task(void)
-{
-    pio_output_set(PIEZO_PIO,tweeter_update(tweeter));
-}
-
-
-// Makes a sound when there is a collision
-void tweeter_collision(void)
-{
-    tweeter_note_play(tweeter,75,127);
-    tweeter_task();
-}
-
-
-// Turns off the collision beep
-void tweeter_collision_reset(void)
-{
-    if (collision_reset_counter == (PACER_RATE / TWEETER_RESET_RATE)) {
-        tweeter_note_play(tweeter,0,127);
-        tweeter_task();
-        collision_reset_counter = 0;
-    } else {
-        collision_reset_counter++;
-    }
-}
 
 
 // Resets slider and pixel
