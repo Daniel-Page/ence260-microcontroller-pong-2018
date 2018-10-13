@@ -19,6 +19,10 @@ all: pong.out
 pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h sound.h slider.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
+pixel.o: pixel.c pixel.h ../../drivers/avr/system.h sound.h ../../drivers/display.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+	
 slider.o: slider.c slider.h ../../drivers/avr/system.h ../../drivers/navswitch.h ../../drivers/display.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
@@ -72,7 +76,7 @@ system.o: ../../drivers/avr/system.c ../../drivers/avr/system.h
 
 
 # Link: create ELF output file from object files.
-pong.out: pong.o slider.o sound.o tweeter.o ticker.o button.o task.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
+pong.out: pong.o pixel.o slider.o sound.o tweeter.o ticker.o button.o task.o tinygl.o font.o ir_serial.o ir.o pacer.o timer.o led.o navswitch.o display.o ledmat.o pio.o system.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 

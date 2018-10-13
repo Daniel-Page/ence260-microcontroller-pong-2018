@@ -16,11 +16,11 @@
 #include "pio.h"
 #include "sound.h"
 #include "slider.h"
+#include "pixel.h"
 
 
 // Rates
 #define PACER_RATE 1000
-#define PIXEL_RATE 5
 #define MESSAGE_RATE 20
 // Game States
 #define MENU 1
@@ -42,10 +42,9 @@
 
 
 // Game variables
+static int8_t row = 3;
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
-static int8_t row = 3;
-static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
 
@@ -58,105 +57,6 @@ void reset(void)
     display_pixel_set(4,row-1,0);
     display_pixel_set(pixel_x,pixel_y,0);
     display_update();
-}
-
-
-
-
-// North-West movement
-void pixel_nw(void)
-{
-    pixel_x++;
-    pixel_y++;
-}
-
-// South-East movement
-void pixel_se(void)
-{
-    pixel_x--;
-    pixel_y--;
-}
-
-// South-West movement
-void pixel_sw(void)
-{
-    pixel_x++;
-    pixel_y--;
-}
-
-// North-East movement
-void pixel_ne(void)
-{
-    pixel_x--;
-    pixel_y++;
-}
-
-
-// Contols the pixel movement in free space and at the boundaries of the game
-void pixel_movement(void)
-{
-    if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
-        // Slider rebound
-        if ((pixel_x == 3) && ((pixel_y == 6) ||
-                               (pixel_y == 0)) && ((pixel_y == row) ||
-                                       (pixel_y == row+1) || (pixel_y == row-1))) {
-            if (movement_state == DNW) {
-                movement_state = DSE;
-                tweeter_collision();
-            } else if (movement_state == DSW) {
-                movement_state = DNE;
-                tweeter_collision();
-            }
-        } else if (((pixel_x == 3 && pixel_y == row) ||
-                    (pixel_x == 3 && pixel_y == row+1) ||
-                    (pixel_x == 3 && pixel_y == row-1))) {
-            if (movement_state == DNW) {
-                movement_state = DNE;
-                tweeter_collision();
-            } else if (movement_state == DSW) {
-                movement_state = DSE;
-                tweeter_collision();
-            }
-            // Top rebound
-        } else if ((pixel_x == 0 && pixel_y == 6) ||
-                   (pixel_x == 1 && pixel_y == 6) ||
-                   (pixel_x == 2 && pixel_y == 6) ||
-                   (pixel_x == 3 && pixel_y == 6)) {
-            if (movement_state == DNE) {
-                movement_state = DSE;
-                tweeter_collision();
-            } else if (movement_state == DNW) {
-                movement_state = DSW;
-                tweeter_collision();
-            }
-            // Bottom rebound
-        } else if ((pixel_x == 0 && pixel_y == 0) ||
-                   (pixel_x == 1 && pixel_y == 0) ||
-                   (pixel_x == 2 && pixel_y == 0) ||
-                   (pixel_x == 3 && pixel_y == 0)) {
-            if (movement_state == DSE) {
-                movement_state = DNE;
-                tweeter_collision();
-            } else if (movement_state == DSW) {
-                movement_state = DNW;
-                tweeter_collision();
-            }
-        }
-        // Moves pixel by changing coordinates
-        if (movement_state == DNW) {
-            pixel_nw();
-        } else if (movement_state == DNE) {
-            pixel_ne();
-        } else if (movement_state == DSW) {
-            pixel_sw();
-        } else if (movement_state == DSE) {
-            pixel_se();
-        }
-        counter_pixel = 0;
-    } else {
-        counter_pixel++;
-    }
-    display_pixel_set(pixel_x,pixel_y,1);
 }
 
 
@@ -307,7 +207,7 @@ int main (void)
         } else if (game_state == PLAYING) {
             reset();
             row = slider_movement(row);
-            pixel_movement();
+            pixel_movement(&pixel_x,&pixel_y,&movement_state,row);
             game_over_check();
             display_update();
         } else if (game_state == GAME_OVER) {

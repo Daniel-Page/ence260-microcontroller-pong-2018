@@ -1,3 +1,9 @@
+// File: Pong
+// Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
+// Date: 14 Oct 2018
+// Descr: Function for the slider
+
+
 #include "system.h"
 #include "slider.h"
 #include "navswitch.h"
@@ -6,6 +12,7 @@
 
 #define PACER_RATE 1000
 #define SLIDER_RATE 10
+
 
 static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
