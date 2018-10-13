@@ -34,9 +34,9 @@
 #define GAME_OVER 3
 #define STATIONARY 0
 // Directions
-#define NW 1
-#define NE 2
-#define SW 3
+#define DNW 1
+#define DNE 2
+#define DSW 3
 #define DSE 4
 #define DIRECTION_OFFSET 10
 // Indicators
@@ -63,15 +63,18 @@ static uint8_t game_state = MENU;
 static uint8_t collision_reset_counter = 0;
 
 
+// Initialises the tweeter
 void tweeter_task_init(void)
 {
-    tweeter = tweeter_init(&tweeter_info, TWEETER_TASK_RATE, scale_table);
+    tweeter = tweeter_init(&tweeter_info,TWEETER_TASK_RATE,scale_table);
     pio_config_set(PIEZO_PIO, PIO_OUTPUT_LOW);
 }
 
+
+// Updates the tweeter sound
 void tweeter_task(void)
 {
-    pio_output_set(PIEZO_PIO, tweeter_update (tweeter));
+    pio_output_set(PIEZO_PIO,tweeter_update(tweeter));
 }
 
 
@@ -180,20 +183,20 @@ void pixel_movement(void)
         if ((pixel_x == 3) && ((pixel_y == 6) ||
                                (pixel_y == 0)) && ((pixel_y == row) ||
                                        (pixel_y == row+1) || (pixel_y == row-1))) {
-            if (movement_state == NW) {
+            if (movement_state == DNW) {
                 movement_state = DSE;
                 tweeter_collision();
-            } else if (movement_state == SW) {
-                movement_state = NE;
+            } else if (movement_state == DSW) {
+                movement_state = DNE;
                 tweeter_collision();
             }
         } else if (((pixel_x == 3 && pixel_y == row) ||
                     (pixel_x == 3 && pixel_y == row+1) ||
                     (pixel_x == 3 && pixel_y == row-1))) {
-            if (movement_state == NW) {
-                movement_state = NE;
+            if (movement_state == DNW) {
+                movement_state = DNE;
                 tweeter_collision();
-            } else if (movement_state == SW) {
+            } else if (movement_state == DSW) {
                 movement_state = DSE;
                 tweeter_collision();
             }
@@ -202,11 +205,11 @@ void pixel_movement(void)
                    (pixel_x == 1 && pixel_y == 6) ||
                    (pixel_x == 2 && pixel_y == 6) ||
                    (pixel_x == 3 && pixel_y == 6)) {
-            if (movement_state == NE) {
+            if (movement_state == DNE) {
                 movement_state = DSE;
                 tweeter_collision();
-            } else if (movement_state == NW) {
-                movement_state = SW;
+            } else if (movement_state == DNW) {
+                movement_state = DSW;
                 tweeter_collision();
             }
             // Bottom rebound
@@ -215,19 +218,19 @@ void pixel_movement(void)
                    (pixel_x == 2 && pixel_y == 0) ||
                    (pixel_x == 3 && pixel_y == 0)) {
             if (movement_state == DSE) {
-                movement_state = NE;
+                movement_state = DNE;
                 tweeter_collision();
-            } else if (movement_state == SW) {
-                movement_state = NW;
+            } else if (movement_state == DSW) {
+                movement_state = DNW;
                 tweeter_collision();
             }
         }
         // Moves pixel by changing coordinates
-        if (movement_state == NW) {
+        if (movement_state == DNW) {
             pixel_nw();
-        } else if (movement_state == NE) {
+        } else if (movement_state == DNE) {
             pixel_ne();
-        } else if (movement_state == SW) {
+        } else if (movement_state == DSW) {
             pixel_sw();
         } else if (movement_state == DSE) {
             pixel_se();
@@ -273,11 +276,11 @@ void receive_check(void)
             pixel_x = 0;
             data = data - DIRECTION_OFFSET;
             pixel_y = data;
-            movement_state = NW;
+            movement_state = DNW;
         } else {
             pixel_x = 0;
             pixel_y = data;
-            movement_state = SW;
+            movement_state = DSW;
         }
     }
 }
@@ -294,7 +297,7 @@ void pixel_transition_check(void)
             (pixel_x == -1 && pixel_y == 5) ||
             (pixel_x == -1 && pixel_y == 6)) {
         // (7-) inverts screen orientation
-        if (movement_state == NE) {
+        if (movement_state == DNE) {
             // Going up right
             ir_serial_transmit (6-pixel_y);
             movement_state = STATIONARY;
@@ -315,7 +318,7 @@ void start_playing(void)
         tinygl_clear();
         send_starting_signal();
         game_state = PLAYING;
-        movement_state = NW;
+        movement_state = DNW;
     }
 }
 
@@ -399,5 +402,3 @@ int main (void)
         tweeter_collision_reset();
     }
 }
-
-// To do: README, sounds, split into modules and comment everything
