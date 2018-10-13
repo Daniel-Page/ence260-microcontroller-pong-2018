@@ -13,15 +13,13 @@
 #include "ir_serial.h"
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
-#include "tweeter.h"
-#include "mmelody.h"
 #include "pio.h"
 #include "sound.h"
+#include "slider.h"
 
 
 // Rates
 #define PACER_RATE 1000
-#define SLIDER_RATE 10
 #define PIXEL_RATE 5
 #define MESSAGE_RATE 20
 // Game States
@@ -47,8 +45,6 @@
 static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
 static int8_t row = 3;
-static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
-static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
@@ -65,41 +61,7 @@ void reset(void)
 }
 
 
-// Controls slider movement and sets display
-void slider_movement(void)
-{
-    navswitch_update();
-    if (navswitch_down_p(NAVSWITCH_NORTH)) {
-        if (row == -2) {
-            row = 7;
-        }
-        if (counter_north == (PACER_RATE / SLIDER_RATE)) {
-            row--;
-            counter_north = 0;
-        } else {
-            counter_north++;
-        }
-    } else if (navswitch_up_p(NAVSWITCH_NORTH)) {
-        counter_north = (PACER_RATE / SLIDER_RATE);
-    }
-    if (navswitch_down_p(NAVSWITCH_SOUTH)) {
-        if (row == 8) {
-            row = -1;
-        }
-        if (counter_south == (PACER_RATE / SLIDER_RATE)) {
-            row++;
-            counter_south = 0;
-        } else {
-            counter_south++;
-        }
-    } else if (navswitch_up_p(NAVSWITCH_SOUTH)) {
-        counter_south = (PACER_RATE / SLIDER_RATE);
-    }
-    display_pixel_set(4,row,1);
-    display_pixel_set(4,row+1,1);
-    display_pixel_set(4,row-1,1);
-    display_update();
-}
+
 
 // North-West movement
 void pixel_nw(void)
@@ -344,7 +306,7 @@ int main (void)
             tinygl_update ();
         } else if (game_state == PLAYING) {
             reset();
-            slider_movement();
+            row = slider_movement(row);
             pixel_movement();
             game_over_check();
             display_update();
