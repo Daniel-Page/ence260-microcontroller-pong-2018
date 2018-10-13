@@ -50,7 +50,7 @@ void pixel_ne(int8_t* pixel_x,int8_t* pixel_y)
 
 
 // Contols the pixel movement in free space and at the boundaries of the game
-void pixel_movement(int8_t* pixel_x,int8_t* pixel_y,int8_t* movement_state,int8_t row)
+void pixel_movement(int8_t* pixel_x,int8_t* pixel_y,uint8_t* movement_state,int8_t row)
 {
     if (counter_pixel == (PACER_RATE / PIXEL_RATE)) {
         // Slider rebound

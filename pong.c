@@ -17,6 +17,7 @@
 #include "sound.h"
 #include "slider.h"
 #include "pixel.h"
+#include "communicate.h"
 
 
 // Rates
@@ -33,12 +34,12 @@
 #define DSW 3
 #define DSE 4
 #define DIRECTION_OFFSET 10
-// Indicators
-#define STARTING_INDICATOR 30
-#define WINNER_INDICATOR 35
 // Output States
 #define LED_ON 1
 #define LED_OFF 0
+// Indicators
+#define STARTING_INDICATOR 30
+#define WINNER_INDICATOR 35
 
 
 // Game variables
@@ -57,20 +58,6 @@ void reset(void)
     display_pixel_set(4,row-1,0);
     display_pixel_set(pixel_x,pixel_y,0);
     display_update();
-}
-
-
-// Sends starting singal when both devices are on "START" screen
-void send_starting_signal(void)
-{
-    ir_serial_transmit(STARTING_INDICATOR);
-}
-
-
-// The loser sends a signal to the other device that they are the winner
-void communicate_winner(void)
-{
-    ir_serial_transmit(WINNER_INDICATOR);
 }
 
 
