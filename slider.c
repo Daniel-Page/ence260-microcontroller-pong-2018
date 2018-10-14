@@ -1,11 +1,11 @@
-// File: Pong
+// File: Slider
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
 // Date: 14 Oct 2018
-// Descr: Function for the slider
+// Descr: Slider module
 
 
-#include "system.h"
 #include "slider.h"
+#include "system.h"
 #include "navswitch.h"
 #include "display.h"
 
@@ -16,6 +16,15 @@
 
 static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
+
+
+void reset_slider(int8_t row)
+{
+    display_pixel_set(4,row,0);
+    display_pixel_set(4,row+1,0);
+    display_pixel_set(4,row-1,0);
+    display_update();
+}
 
 
 // Controls slider movement and sets display

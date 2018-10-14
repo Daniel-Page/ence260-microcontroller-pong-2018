@@ -1,7 +1,7 @@
-// File: Pong
+// File: Pixel
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 10 Oct 2018
-// Descr: The main file for a game of pong
+// Date: 14 Oct 2018
+// Descr: Pixel module
 
 
 #include "pixel.h"
@@ -9,15 +9,26 @@
 #include "sound.h"
 #include "display.h"
 
+
+// Rates
+#define PACER_RATE 1000
+#define PIXEL_RATE 5
+// Directions
 #define DNW 1
 #define DNE 2
 #define DSW 3
 #define DSE 4
-#define PACER_RATE 1000
-#define PIXEL_RATE 5
 
 
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
+
+
+// Resets slider and pixel
+void reset_pixel(int8_t* pixel_x,int8_t* pixel_y)
+{
+    display_pixel_set(*pixel_x,*pixel_y,0);
+    display_update();
+}
 
 
 // North-West movement

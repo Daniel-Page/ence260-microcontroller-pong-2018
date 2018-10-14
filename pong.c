@@ -1,6 +1,6 @@
 // File: Pong
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 10 Oct 2018
+// Date: 14 Oct 2018
 // Descr: The main file for a game of pong
 
 
@@ -13,7 +13,6 @@
 #include "ir_serial.h"
 #include "tinygl.h"
 #include "../fonts/font3x5_1.h"
-#include "pio.h"
 #include "sound.h"
 #include "slider.h"
 #include "pixel.h"
@@ -48,46 +47,6 @@ static int8_t pixel_x = -1;
 static int8_t pixel_y = -1;
 static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
-
-
-// Resets slider and pixel
-void reset(void)
-{
-    display_pixel_set(4,row,0);
-    display_pixel_set(4,row+1,0);
-    display_pixel_set(4,row-1,0);
-    display_pixel_set(pixel_x,pixel_y,0);
-    display_update();
-}
-
-
-// Checks for IR signals and carries out actions
-void receive_check(void)
-{
-    uint8_t data = 0;
-    if (ir_serial_receive(&data) == IR_SERIAL_OK) {
-        if (data == STARTING_INDICATOR) {
-            tinygl_clear();
-            led_set(LED1,LED_OFF);
-            game_state = PLAYING;
-        } else if (data == WINNER_INDICATOR) {
-            reset();
-            tinygl_text("YOU WIN!");
-            game_state = GAME_OVER;
-            led_set(LED1,LED_ON);
-            row = 3;
-        } else if (data >= DIRECTION_OFFSET) {
-            pixel_x = 0;
-            data = data - DIRECTION_OFFSET;
-            pixel_y = data;
-            movement_state = DNW;
-        } else {
-            pixel_x = 0;
-            pixel_y = data;
-            movement_state = DSW;
-        }
-    }
-}
 
 
 // Sends signal to other device after processing
@@ -138,7 +97,8 @@ void game_over_check(void)
             (pixel_x == 4 && pixel_y == 5) ||
             (pixel_x == 4 && pixel_y == 6)) {
         tinygl_text("YOU LOSE");
-        reset();
+        reset_pixel(&pixel_x,&pixel_y);
+        reset_slider(row);
         communicate_winner();
         game_state = GAME_OVER;
     }
@@ -150,7 +110,8 @@ void button_reset_check(void)
 {
     button_update();
     if (button_push_event_p(0)) {
-        reset();
+        reset_pixel(&pixel_x,&pixel_y);
+        reset_slider(row);
         led_set(LED1,LED_OFF);
         movement_state = 0;
         pixel_x = -1;
@@ -178,7 +139,6 @@ void init_all(void)
     tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
     tinygl_text("START");
     tweeter_task_init();
-
 }
 
 
@@ -192,7 +152,8 @@ int main (void)
             start_playing();
             tinygl_update ();
         } else if (game_state == PLAYING) {
-            reset();
+            reset_pixel(&pixel_x,&pixel_y);
+            reset_slider(row);
             row = slider_movement(row);
             pixel_movement(&pixel_x,&pixel_y,&movement_state,row);
             game_over_check();
@@ -201,7 +162,7 @@ int main (void)
             tinygl_update();
         }
         pixel_transition_check();
-        receive_check();
+        receive_check(&pixel_x,&pixel_y,&movement_state,&row,&game_state);
         button_reset_check();
         tweeter_collision_reset();
     }

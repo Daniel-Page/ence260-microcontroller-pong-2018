@@ -16,13 +16,13 @@ all: pong.out
 
 
 # Compile: create object files from C source files.
-pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h sound.h slider.h ../../drivers/ir_serial.h
+pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h sound.h slider.h ../../drivers/ir_serial.h communicate.h ../../utils/tinygl.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
 pixel.o: pixel.c pixel.h ../../drivers/avr/system.h sound.h ../../drivers/display.h 
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-communicate.o: communicate.c communicate.h ../../drivers/avr/system.h sound.h ../../drivers/ir_serial.h
+communicate.o: communicate.c communicate.h ../../drivers/avr/system.h sound.h ../../drivers/ir_serial.h ../../drivers/led.h ../../utils/tinygl.h pixel.h slider.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 slider.o: slider.c slider.h ../../drivers/avr/system.h ../../drivers/navswitch.h ../../drivers/display.h
