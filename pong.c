@@ -1,7 +1,7 @@
 // File: Pong
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
 // Date: 14 Oct 2018
-// Descr: The main file for a game of pong
+// Descr: The main file for controlling the states of the game
 
 
 #include "system.h"
@@ -49,30 +49,6 @@ static uint8_t movement_state = STATIONARY;
 static uint8_t game_state = MENU;
 
 
-// Sends signal to other device after processing
-void pixel_transition_check(void)
-{
-    if ((pixel_x == -1 && pixel_y == 0) ||
-            (pixel_x == -1 && pixel_y == 1) ||
-            (pixel_x == -1 && pixel_y == 2) ||
-            (pixel_x == -1 && pixel_y == 3) ||
-            (pixel_x == -1 && pixel_y == 4) ||
-            (pixel_x == -1 && pixel_y == 5) ||
-            (pixel_x == -1 && pixel_y == 6)) {
-        // (7-) inverts screen orientation
-        if (movement_state == DNE) {
-            // Going up right
-            ir_serial_transmit (6-pixel_y);
-            movement_state = STATIONARY;
-        } else if (movement_state == DSE) {
-            // (+10) to signify going down right
-            ir_serial_transmit (6-pixel_y+DIRECTION_OFFSET);
-            movement_state = STATIONARY;
-        }
-    }
-}
-
-
 // Initiates game on both devices
 void start_playing(void)
 {
@@ -82,25 +58,6 @@ void start_playing(void)
         send_starting_signal();
         game_state = PLAYING;
         movement_state = DNW;
-    }
-}
-
-
-// Checks to see if the pixel has entered the restricted zone
-void game_over_check(void)
-{
-    if ((pixel_x == 4 && pixel_y == 0) ||
-            (pixel_x == 4 && pixel_y == 1) ||
-            (pixel_x == 4 && pixel_y == 2) ||
-            (pixel_x == 4 && pixel_y == 3) ||
-            (pixel_x == 4 && pixel_y == 4) ||
-            (pixel_x == 4 && pixel_y == 5) ||
-            (pixel_x == 4 && pixel_y == 6)) {
-        tinygl_text("YOU LOSE");
-        reset_pixel(&pixel_x,&pixel_y);
-        reset_slider(row);
-        communicate_winner();
-        game_state = GAME_OVER;
     }
 }
 
@@ -156,12 +113,12 @@ int main (void)
             reset_slider(row);
             row = slider_movement(row);
             pixel_movement(&pixel_x,&pixel_y,&movement_state,row);
-            game_over_check();
+            game_over_check(pixel_x,pixel_y,row,&game_state);
             display_update();
         } else if (game_state == GAME_OVER) {
             tinygl_update();
         }
-        pixel_transition_check();
+        pixel_transition_check(pixel_x,pixel_y,&movement_state);
         receive_check(&pixel_x,&pixel_y,&movement_state,&row,&game_state);
         button_reset_check();
         tweeter_collision_reset();

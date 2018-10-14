@@ -19,10 +19,10 @@ all: pong.out
 pong.o: pong.c ../../drivers/avr/system.h ../../drivers/display.h ../../drivers/navswitch.h ../../drivers/led.h ../../utils/pacer.h ../../drivers/button.h sound.h slider.h ../../drivers/ir_serial.h communicate.h ../../utils/tinygl.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-pixel.o: pixel.c pixel.h ../../drivers/avr/system.h sound.h ../../drivers/display.h 
+pixel.o: pixel.c pixel.h ../../drivers/avr/system.h sound.h ../../drivers/display.h communicate.h slider.h ../../utils/tinygl.h
 	$(CC) -c $(CFLAGS) $< -o $@
 	
-communicate.o: communicate.c communicate.h ../../drivers/avr/system.h sound.h ../../drivers/ir_serial.h ../../drivers/led.h ../../utils/tinygl.h pixel.h slider.h
+communicate.o: communicate.c communicate.h ../../drivers/avr/system.h ../../drivers/ir_serial.h ../../drivers/led.h ../../utils/tinygl.h pixel.h slider.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 slider.o: slider.c slider.h ../../drivers/avr/system.h ../../drivers/navswitch.h ../../drivers/display.h

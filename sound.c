@@ -1,12 +1,13 @@
 // File: Pong
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 10 Oct 2018
-// Descr: The main file for a game of pong
+// Date: 14 Oct 2018
+// Descr: Sound module for collisions
 
 #include "system.h"
 #include "tweeter.h"
 #include "sound.h"
 #include "pio.h"
+
 
 // Rate
 #define PACER_RATE 1000

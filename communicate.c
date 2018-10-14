@@ -73,3 +73,17 @@ void receive_check(int8_t* pixel_x,int8_t* pixel_y,uint8_t* movement_state,int8_
         }
     }
 }
+
+
+void send_position(int8_t pixel_y, uint8_t* movement_state) {
+// (7-) inverts screen orientation
+        if (*movement_state == DNE) {
+            // Going up right
+            ir_serial_transmit (6-pixel_y);
+            *movement_state = STATIONARY;
+        } else if (*movement_state == DSE) {
+            // (+10) to signify going down right
+            ir_serial_transmit (6-pixel_y+DIRECTION_OFFSET);
+            *movement_state = STATIONARY;
+        }
+}

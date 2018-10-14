@@ -10,9 +10,14 @@
 
 void send_starting_signal(void);
 
+
 void communicate_winner(void);
 
+
 void receive_check(int8_t* pixel_x,int8_t* pixel_y,uint8_t* movement_state,int8_t* row, uint8_t* game_state);
+
+
+void send_position(int8_t pixel_y, uint8_t* movement_state);
 
 
 #endif

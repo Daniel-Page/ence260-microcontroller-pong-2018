@@ -8,6 +8,9 @@
 #include "system.h"
 #include "sound.h"
 #include "display.h"
+#include "communicate.h"
+#include "tinygl.h"
+#include "slider.h"
 
 
 // Rates
@@ -18,6 +21,11 @@
 #define DNE 2
 #define DSW 3
 #define DSE 4
+// Game States
+#define MENU 1
+#define PLAYING 2
+#define GAME_OVER 3
+#define STATIONARY 0
 
 
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
@@ -38,6 +46,7 @@ void pixel_nw(int8_t* pixel_x,int8_t* pixel_y)
     (*pixel_y)++;
 }
 
+
 // South-East movement
 void pixel_se(int8_t* pixel_x,int8_t* pixel_y)
 {
@@ -45,12 +54,14 @@ void pixel_se(int8_t* pixel_x,int8_t* pixel_y)
     (*pixel_y)--;
 }
 
+
 // South-West movement
 void pixel_sw(int8_t* pixel_x,int8_t* pixel_y)
 {
     (*pixel_x)++;
     (*pixel_y)--;
 }
+
 
 // North-East movement
 void pixel_ne(int8_t* pixel_x,int8_t* pixel_y)
@@ -125,4 +136,38 @@ void pixel_movement(int8_t* pixel_x,int8_t* pixel_y,uint8_t* movement_state,int8
         counter_pixel++;
     }
     display_pixel_set(*pixel_x,*pixel_y,1);
+}
+
+
+// Sends signal to other device after processing
+void pixel_transition_check(int8_t pixel_x,int8_t pixel_y,uint8_t* movement_state)
+{
+    if ((pixel_x == -1 && pixel_y == 0) ||
+            (pixel_x == -1 && pixel_y == 1) ||
+            (pixel_x == -1 && pixel_y == 2) ||
+            (pixel_x == -1 && pixel_y == 3) ||
+            (pixel_x == -1 && pixel_y == 4) ||
+            (pixel_x == -1 && pixel_y == 5) ||
+            (pixel_x == -1 && pixel_y == 6)) {
+        send_position(pixel_y, movement_state);
+    }
+}
+
+
+// Checks to see if the pixel has entered the restricted zone
+void game_over_check(int8_t pixel_x,int8_t pixel_y, int8_t row, uint8_t* game_state)
+{
+    if ((pixel_x == 4 && pixel_y == 0) ||
+            (pixel_x == 4 && pixel_y == 1) ||
+            (pixel_x == 4 && pixel_y == 2) ||
+            (pixel_x == 4 && pixel_y == 3) ||
+            (pixel_x == 4 && pixel_y == 4) ||
+            (pixel_x == 4 && pixel_y == 5) ||
+            (pixel_x == 4 && pixel_y == 6)) {
+        tinygl_text("YOU LOSE");
+        reset_pixel(&pixel_x,&pixel_y);
+        reset_slider(row);
+        communicate_winner();
+        *game_state = GAME_OVER;
+    }
 }
