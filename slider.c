@@ -1,6 +1,6 @@
-// File: Slider
+// File: slider.c
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 14 Oct 2018
+// Date: 15 Oct 2018
 // Descr: Slider module
 
 
@@ -18,6 +18,7 @@ static uint16_t counter_north = (PACER_RATE / SLIDER_RATE);
 static uint16_t counter_south = (PACER_RATE / SLIDER_RATE);
 
 
+// Resets the slider pixels
 void reset_slider(int8_t row)
 {
     display_pixel_set(4,row,0);

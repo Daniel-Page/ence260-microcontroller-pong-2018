@@ -1,6 +1,6 @@
-// File: Communicate
+// File: communicate.c
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 14 Oct 2018
+// Date: 15 Oct 2018
 // Descr: Communications module
 
 
@@ -75,6 +75,7 @@ void receive_check(int8_t* pixel_x,int8_t* pixel_y,uint8_t* movement_state,int8_
 }
 
 
+// Encodes and sends the position via IR to the other device
 void send_position(int8_t pixel_y, uint8_t* movement_state) {
 // (7-) inverts screen orientation
         if (*movement_state == DNE) {

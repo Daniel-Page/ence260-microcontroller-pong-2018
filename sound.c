@@ -1,6 +1,6 @@
-// File: Pong
+// File: sound.c
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 14 Oct 2018
+// Date: 15 Oct 2018
 // Descr: Sound module for collisions
 
 #include "system.h"

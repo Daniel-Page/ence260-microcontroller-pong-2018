@@ -1,6 +1,6 @@
 # File:   Makefile
-# Authors: Daniel Page and Caleb Smith
-# Date:   8 Oct 2018
+# Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
+# Date:   15 Oct 2018
 # Descr:  Makefile for pong
 
 # Definitions.

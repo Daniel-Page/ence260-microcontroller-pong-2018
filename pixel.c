@@ -1,6 +1,6 @@
-// File: Pixel
+// File: pixel.c
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 14 Oct 2018
+// Date: 15 Oct 2018
 // Descr: Pixel module
 
 
@@ -31,7 +31,7 @@
 static uint16_t counter_pixel = (PACER_RATE / PIXEL_RATE);
 
 
-// Resets slider and pixel
+// Resets moving pixel
 void reset_pixel(int8_t* pixel_x,int8_t* pixel_y)
 {
     display_pixel_set(*pixel_x,*pixel_y,0);

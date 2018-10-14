@@ -1,6 +1,6 @@
-// File: Pong
+// File: pong.c
 // Authors: Daniel Page (dwi65) and Caleb Smith (cas202)
-// Date: 14 Oct 2018
+// Date: 15 Oct 2018
 // Descr: The main file for controlling the states of the game
 
 
