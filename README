@@ -7,7 +7,7 @@ START GAME
 END GAME
  - Once the ball passes a players slider, this player loses and the game
    is ended. Your screen will then display either "YOU WIN" or "YOU LOSE"
-   based on the outcome of the game. Also, on the winner's UCFK an LED will be activated.
+   based on the outcome of the game. Also, on the winner's UCFK a blue LED will illuminate.
 RESET GAME
  - The game is reset by both players clicking the button on the opposite side on the UCFK
    to the navswitch.
