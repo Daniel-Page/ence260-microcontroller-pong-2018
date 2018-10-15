@@ -39,7 +39,7 @@ void reset_pixel(int8_t* pixel_x,int8_t* pixel_y)
 }
 
 
-// North-West movement
+// Define North-West movement
 void pixel_nw(int8_t* pixel_x,int8_t* pixel_y)
 {
     (*pixel_x)++;
@@ -47,7 +47,7 @@ void pixel_nw(int8_t* pixel_x,int8_t* pixel_y)
 }
 
 
-// South-East movement
+// Define South-East movement
 void pixel_se(int8_t* pixel_x,int8_t* pixel_y)
 {
     (*pixel_x)--;
@@ -55,7 +55,7 @@ void pixel_se(int8_t* pixel_x,int8_t* pixel_y)
 }
 
 
-// South-West movement
+// Define South-West movement
 void pixel_sw(int8_t* pixel_x,int8_t* pixel_y)
 {
     (*pixel_x)++;
@@ -63,7 +63,7 @@ void pixel_sw(int8_t* pixel_x,int8_t* pixel_y)
 }
 
 
-// North-East movement
+// Define North-East movement
 void pixel_ne(int8_t* pixel_x,int8_t* pixel_y)
 {
     (*pixel_x)--;
@@ -121,7 +121,7 @@ void pixel_movement(int8_t* pixel_x,int8_t* pixel_y,uint8_t* movement_state,int8
                 tweeter_collision();
             }
         }
-        // Moves pixel by changing coordinates
+        // Moves pixel by changing coordinates when rebounding
         if (*movement_state == DNW) {
             pixel_nw(pixel_x,pixel_y);
         } else if (*movement_state == DNE) {
